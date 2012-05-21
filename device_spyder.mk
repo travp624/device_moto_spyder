@@ -108,7 +108,7 @@ PRODUCT_COPY_FILES += \
 
 # Rootfs files
 PRODUCT_COPY_FILES += \
-    device/motorola/spyder/root/init:system/etc/rootfs/init \
+    out/target/product/spyder/root/init:system/etc/rootfs/init \
     out/target/product/spyder/root/sbin/adbd:system/etc/rootfs/sbin/adbd \
     device/moto/spyder/root/default.prop:system/etc/rootfs/default.prop \
     device/moto/spyder/root/init.rc:system/etc/rootfs/init.rc \
@@ -201,7 +201,7 @@ PRODUCT_COPY_FILES += \
 # Phone settings
 PRODUCT_COPY_FILES += \
     device/sample/etc/apns-conf_verizon.xml:system/etc/apns-conf.xml \
-    vendor/BlackICE/prebuilt/common/etc/spn-conf.xml:system/etc/spn-conf.xml \
+    device/moto/spyder/prebuilt/etc/spn-conf.xml:system/etc/spn-conf.xml \
 
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
