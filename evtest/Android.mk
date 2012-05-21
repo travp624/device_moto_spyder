@@ -4,9 +4,9 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_SRC_FILES:= evtest.c
+LOCAL_SRC_FILES:= evtestspyder.c
 
-LOCAL_MODULE:= evtest
+LOCAL_MODULE:= evtestspyder
 
 LOCAL_C_INCLUDES := $(KERNEL_HEADERS)
 
