@@ -3,8 +3,8 @@ USE_CAMERA_STUB := false
 BOARD_USES_TI_CAMERA_HAL := true
 
 # ICS Leak Hacks
-#BOARD_OVERRIDE_FB0_WIDTH := 540
-#BOARD_OVERRIDE_FB0_HEIGHT := 960
+BOARD_OVERRIDE_FB0_WIDTH := 540
+BOARD_OVERRIDE_FB0_HEIGHT := 960
 
 # inherit from the proprietary version
 -include vendor/moto/spyder/BoardConfigVendor.mk
@@ -98,7 +98,7 @@ BOARD_SYSTEM_FILESYSTEM := ext3
 
 
 # Graphics
-BOARD_EGL_CFG := device/moto/spyder/prebuilt/etc/egl.cfg
+BOARD_EGL_CFG := device/motorola/spyder/prebuilt/etc/egl.cfg
 USE_OPENGL_RENDERER := true
 #COMMON_GLOBAL_CFLAGS += -DMISSING_EGL_EXTERNAL_IMAGE -DMISSING_EGL_PIXEL_FORMAT_YV12 -DMISSING_GRALLOC_BUFFERS
 COMMON_GLOBAL_CFLAGS += -DSURFACEFLINGER_FORCE_SCREEN_RELEASE
@@ -125,11 +125,6 @@ ifdef USE_MOTOROLA_USERS
 COMMON_GLOBAL_CFLAGS += -DUSE_MOTOROLA_USERS
 endif
 
-ENHANCED_DOMX := true
-USE_ITTIAM_AAC := true
-ifdef USE_ITTIAM_AAC
-COMMON_GLOBAL_CFLAGS += -DUSE_ITTIAM_AAC
-endif
 
 # Media / Radio
 # Off currently
