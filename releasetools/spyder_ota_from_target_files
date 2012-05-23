@@ -56,11 +56,12 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
       Enable or disable the execution of backuptool.sh.
       Disabled by default.
 
+  --configid <boolean>
+     Enable or disable the execution of modelid_cfg.sh.
+      Enabled by default.
+
   --override_device <device>
       Override device-specific asserts. Can be a comma-separated list.
-   
-  --no_assert <true|false>
-	  Including this will turn device asserts off.
 
 """
 
@@ -99,8 +100,8 @@ OPTIONS.extra_script = None
 OPTIONS.aslr_mode = True
 OPTIONS.worker_threads = 3
 OPTIONS.backuptool = False
+OPTIONS.modelidcfg = True
 OPTIONS.override_device = 'auto'
-OPTIONS.no_assert = False
 
 def MostPopularKey(d, default):
   """Given a dict, return the key corresponding to the largest
@@ -326,7 +327,7 @@ def AppendAssertions(script, input_zip):
     device = GetBuildProp("ro.product.device", input_zip)
   else:
     device = OPTIONS.override_device
-#  script.AssertDevice(device)
+  script.AssertDevice(device)
 
 
 def MakeRecoveryPatch(output_zip, recovery_img, boot_img):
@@ -398,31 +399,41 @@ def WriteFullOTAPackage(input_zip, output_zip):
   #  script.AssertOlderBuild(ts)
 
   if not OPTIONS.no_assert:
-    AppendAssertions(script, input_zip)
-    device_specific.FullOTA_Assertions()
+#  AppendAssertions(script, input_zip)
+#  device_specific.FullOTA_Assertions()
   if OPTIONS.backuptool:
     script.RunBackup("backup")
 
   script.ShowProgress(0.5, 0)
 
   if OPTIONS.wipe_user_data:
+    script.Print("Erasing user data...")
     script.FormatPartition("/data")
 
-#  script.FormatPartition("/system")
+  script.Mount("/cache");
+  script.DeleteRecursive("/cache");
+  script.Print("Wiping dalvik-cache...")
+  script.Mount("/data")  
+  script.DeleteRecursive("/data/dalvik-cache")
+
+#  script.RunFormatAndTuneSystem()
+  script.Print("Mounting your system...")
   script.Mount("/system")
+  script.Print("Deleting old system files...")
   script.DeleteRecursive("/system")
+  script.Print("Starting Installation...")
   #script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
 
   (symlinks, retouch_files) = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
-  if OPTIONS.aslr_mode:
-    script.RetouchBinaries(retouch_files)
-  else:
-    script.UndoRetouchBinaries(retouch_files)
+#  if OPTIONS.aslr_mode:
+#    script.RetouchBinaries(retouch_files)
+#  else:
+#    script.UndoRetouchBinaries(retouch_files)
 
-  boot_img = common.GetBootableImage("boot.img", "boot.img",
-                                     OPTIONS.input_tmp, "BOOT")
+#  boot_img = common.GetBootableImage("boot.img", "boot.img",
+#                                     OPTIONS.input_tmp, "BOOT")
   #recovery_img = common.GetBootableImage("recovery.img", "recovery.img",
   #                                       OPTIONS.input_tmp, "RECOVERY")
   #MakeRecoveryPatch(output_zip, recovery_img, boot_img)
@@ -439,17 +450,19 @@ def WriteFullOTAPackage(input_zip, output_zip):
     script.ShowProgress(0.2, 10)
     script.RunBackup("restore")
 
-  script.RunChkKineto()
+  if OPTIONS.modelidcfg:
+    script.RunConfig("")
 
-  script.RunVerifyCachePartitionSize()
-
-  script.Mount("/data")
+  script.Mount("/system")
   script.RunFinalReleaseUtils()
 
   script.ShowProgress(0.2, 10)
 #  script.WriteRawImage("/boot", "boot.img")
 
   script.ShowProgress(0.1, 0)
+  script.Print("Don't forget to install the GApps if fresh install.")
+  script.Print("")
+  script.Print("Finished installing CM9 for Droid Razr Leak, Enjoy!")
   device_specific.FullOTA_InstallEnd()
 
   if OPTIONS.extra_script is not None:
@@ -569,11 +582,12 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
   script.Mount("/system")
   script.AssertSomeFingerprint(source_fp, target_fp)
 
-  source_boot = common.GetBootableImage(
-      "/tmp/boot.img", "boot.img", OPTIONS.source_tmp, "BOOT")
-  target_boot = common.GetBootableImage(
-      "/tmp/boot.img", "boot.img", OPTIONS.target_tmp, "BOOT")
-  updating_boot = (source_boot.data != target_boot.data)
+#  source_boot = common.GetBootableImage(
+#      "/tmp/boot.img", "boot.img", OPTIONS.source_tmp, "BOOT")
+#  target_boot = common.GetBootableImage(
+#      "/tmp/boot.img", "boot.img", OPTIONS.target_tmp, "BOOT")
+#  updating_boot = (source_boot.data != target_boot.data)
+  updating_boot = false
 
   #source_recovery = common.GetBootableImage(
   #    "/tmp/recovery.img", "recovery.img", OPTIONS.source_tmp, "RECOVERY")
@@ -587,9 +601,8 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
   #  0.8 for applying patches (ApplyPatch calls)
   #  0.1 for unpacking verbatim files, symlinking, and doing the
   #      device-specific commands.
-  
-  if OPTIONS.no_assert:
-     AppendAssertions(script, target_zip)
+
+  AppendAssertions(script, target_zip)
   device_specific.IncrementalOTA_Assertions()
 
   script.Print("Verifying current system...")
@@ -738,10 +751,10 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
       to_create.append((dest, link))
   script.DeleteFiles([i[1] for i in to_create])
   script.MakeSymlinks(to_create)
-#  if OPTIONS.aslr_mode:
-#    script.RetouchBinaries(target_retouch_files)
-#  else:
-#    script.UndoRetouchBinaries(target_retouch_files)
+  if OPTIONS.aslr_mode:
+    script.RetouchBinaries(target_retouch_files)
+  else:
+    script.UndoRetouchBinaries(target_retouch_files)
 
   # Now that the symlinks are created, we can set all the
   # permissions.
@@ -781,11 +794,6 @@ def main(argv):
       OPTIONS.omit_prereq = True
     elif o in ("-e", "--extra_script"):
       OPTIONS.extra_script = a
-    elif o in ("--no_assert"):
-      if a in ("on", "On", "true", "True", "yes", "Yes"):
-        OPTIONS.no_assert = True
-      else:
-        OPTIONS.no_assert = False
     elif o in ("-a", "--aslr_mode"):
       if a in ("on", "On", "true", "True", "yes", "Yes"):
         OPTIONS.aslr_mode = True
@@ -795,6 +803,8 @@ def main(argv):
       OPTIONS.worker_threads = int(a)
     elif o in ("--backup"):
       OPTIONS.backuptool = bool(a.lower() == 'true')
+    elif o in ("--configid"):
+      OPTIONS.modelidcfg = bool(a.lower() == 'true')
     elif o in ("--override_device"):
       OPTIONS.override_device = a
     else:
@@ -805,7 +815,6 @@ def main(argv):
                              extra_opts="b:k:i:d:wne:a:",
                              extra_long_opts=["board_config=",
                                               "package_key=",
-                                              "no_assert=",
                                               "incremental_from=",
                                               "wipe_user_data",
                                               "no_prereq",
