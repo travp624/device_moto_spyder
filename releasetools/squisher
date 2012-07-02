@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Squish a CM otapackage for distribution
+# Squish a otapackage for distribution
 # cyanogen
 #
 
@@ -35,7 +35,7 @@ if [ ! -f "$OTAPACKAGE" ]; then
 	exit 1
 fi
 
-OPTICHARGER=$ANDROID_BUILD_TOP/device/moto/spyder/releasetools/opticharger
+OPTICHARGER=$ANDROID_BUILD_TOP/vendor/BlackICE/tools/opticharger
 QUIET=-q
 DELETE_BINS="applypatch applypatch_static check_prereq recovery updater"
 
@@ -93,7 +93,6 @@ find ./ -name \*.apk | $XARGS $OPTICHARGER
 rm $REPACK/ota/system/app/FmRxApp.apk
 rm $REPACK/ota/system/app/FmService.apk
 rm $REPACK/ota/system/app/FmTxApp.apk
-rm $REPACK/ota/system/app/RomManager.apk
 
 
 if [ "$WANT_SQUASHFS" -eq 1 ]; then
@@ -146,7 +145,7 @@ rm -rf $REPACK/ota/recovery
 	find $REPACK/ota/system/lib/modules -name "*.ko" -print0 | xargs -0 arm-eabi-strip --strip-unneeded
 
 # Copy libvoicesearch as it's getting messed up in the build
-cp -f $ANDROID_BUILD_TOP/device/motorola/spyder/prebuilt/lib/libvoicesearch.so $REPACK/ota/system/lib/libvoicesearch.so
+cp -f $ANDROID_BUILD_TOP/device/moto/spyder/prebuilt/lib/libvoicesearch.so $REPACK/ota/system/lib/libvoicesearch.so
 
 # Determine what to name the new signed package
 

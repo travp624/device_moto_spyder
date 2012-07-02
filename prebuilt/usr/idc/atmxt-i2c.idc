@@ -26,6 +26,9 @@ keyboard.orientationAware = 1
 keyboard.builtIn = 0
 
 
+cursor.mode = navigation
+cursor.orientationAware = 1
+
 # Size
 touch.size.calibration = diameter
 touch.size.scale = 10

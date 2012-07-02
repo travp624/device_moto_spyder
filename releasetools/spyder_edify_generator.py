@@ -111,10 +111,34 @@ class EdifyGenerator(object):
         self.script.append('delete("/system/bin/backuptool.sh");')
         self.script.append('delete("/system/bin/backuptool.functions");')
 
-  def RunConfig(self, command):
-    self.script.append('package_extract_file("system/bin/modelid_cfg.sh", "/tmp/modelid_cfg.sh");')
-    self.script.append('set_perm(0, 0, 0777, "/tmp/modelid_cfg.sh");')
-    self.script.append(('run_program("/tmp/modelid_cfg.sh", "%s");' % command))
+  def RunVerifyCachePartitionSize(self):
+    self.script.append('package_extract_file("system/bin/verify_cache_partition_size.sh", "/tmp/verify_cache_partition_size.sh");')
+    self.script.append('set_perm(0, 0, 0777, "/tmp/verify_cache_partition_size.sh");')
+    self.script.append('run_program("/tmp/verify_cache_partition_size.sh");')
+
+  def RunFormatAndTuneSystem(self):
+    mount_point = "/system"
+    self.script.append('package_extract_file("system/etc/releaseutils/mke2fs", "/tmp/mke2fs");')
+    self.script.append('set_perm(0, 0, 0777, "/tmp/mke2fs");')
+    self.script.append('package_extract_file("system/etc/releaseutils/tune2fs", "/tmp/tune2fs");')
+    self.script.append('set_perm(0, 0, 0777, "/tmp/tune2fs");')
+    self.script.append('unmount("%s");' % (mount_point))
+    fstab = self.info.get("fstab", None)
+    if fstab:
+      p = fstab[mount_point]
+      self.script.append('run_program("/tmp/mke2fs", "-g", "8192", "-m", "0", "-O", "none,has_journal,filetype", "-L", "system", "-U", "06836a22-bc34-1a0b-98ae-965e01a64a10", "%s");' %
+                         (p.device))
+      self.script.append('run_program("/tmp/tune2fs", "-c", "0", "-i", "0", "%s");' %
+                         (p.device))
+      self.mounts.add(p.mount_point)
+    else:
+      what = mount_point.lstrip("/")
+      what = self.info.get("partition_path", "") + what
+      self.script.append('run_program("/tmp/mke2fs", "-g", "8192", "-m", "0", "-O", "none,has_journal,filetype", "-L", "system", "-U", "06836a22-bc34-1a0b-98ae-965e01a64a10", "%s");' %
+                         (what))
+      self.script.append('run_program("/tmp/tune2fs", "-c", "0", "-i", "0", "%s");' %
+                         (what))
+      self.mounts.add(mount_point)
 
   def RunFinalReleaseUtils(self):
     self.script.append('package_extract_file("system/etc/releaseutils/finalize_release", "/tmp/finalize_release");')
@@ -258,17 +282,17 @@ class EdifyGenerator(object):
 
   def RetouchBinaries(self, file_list):
     """Execute the retouch instructions in files listed."""
-    cmd = ('retouch_binaries(' +
-           ', '.join(['"' + i[0] + '", "' + i[1] + '"' for i in file_list]) +
-           ');')
-    self.script.append(self._WordWrap(cmd))
+#    cmd = ('retouch_binaries(' +
+#           ', '.join(['"' + i[0] + '", "' + i[1] + '"' for i in file_list]) +
+#           ');')
+#    self.script.append(self._WordWrap(cmd))
 
   def UndoRetouchBinaries(self, file_list):
     """Undo the retouching (retouch to zero offset)."""
-    cmd = ('undo_retouch_binaries(' +
-           ', '.join(['"' + i[0] + '", "' + i[1] + '"' for i in file_list]) +
-           ');')
-    self.script.append(self._WordWrap(cmd))
+#    cmd = ('undo_retouch_binaries(' +
+#           ', '.join(['"' + i[0] + '", "' + i[1] + '"' for i in file_list]) +
+#           ');')
+#    self.script.append(self._WordWrap(cmd))
 
   def AppendExtra(self, extra):
     """Append text verbatim to the output script."""
