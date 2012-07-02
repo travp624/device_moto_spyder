@@ -11,8 +11,8 @@ $(call inherit-product, device/common/gps/gps_us_supl.mk)
     DEVICE_PACKAGE_OVERLAYS += device/moto/spyder/overlay
 
 # high-density artwork where available
-PRODUCT_AAPT_CONFIG := normal hdpi
-PRODUCT_AAPT_PREF_CONFIG := hdpi
+PRODUCT_AAPT_CONFIG := normal hdpi xhdpi
+PRODUCT_AAPT_PREF_CONFIG := xhdpi
 
 PRODUCT_PACKAGES := \
     charger \
@@ -26,7 +26,7 @@ PRODUCT_COPY_FILES += \
     device/moto/spyder/audio/libaudio.so:/system/lib/libaudio.so \
     device/moto/spyder/audio/libaudio_ext.so:/system/lib/libaudio_ext.so \
     device/moto/spyder/audio/libaudiopolicy.so:/system/lib/libaudiopolicy.so \
-    device/moto/spyder/audio/liba2dp.so:/system/lib/liba2dp.so 
+    device/moto/spyder/audio/liba2dp.so:/system/lib/liba2dp.so
 
 # Hardware HALs
 PRODUCT_COPY_FILES += \
@@ -61,7 +61,7 @@ PRODUCT_PACKAGES += \
     libreference-cdma-sms \
     rild \
     radiooptions \
-    sh 
+    sh
 
 # Wifi
 PRODUCT_PACKAGES += \
@@ -69,19 +69,19 @@ PRODUCT_PACKAGES += \
     wlan_loader \
     wlan_cu \
     dhcpcd.conf \
-    wpa_supplicant.conf 
+    wpa_supplicant.conf
 
 # HotSpot
 PRODUCT_PACKAGES += \
     tiap_loader \
     tiap_cu \
     hostap \
-    hostapd.conf 
+    hostapd.conf
 
 # Bluetooth
 PRODUCT_PACKAGES += \
     bt_sco_app \
-    uim-sysfs 
+    uim-sysfs
 
 # FM Radio
 #PRODUCT_PACKAGES += \
@@ -89,7 +89,7 @@ PRODUCT_PACKAGES += \
 #    fmradioif \
 #    FmRxApp \
 #    FmTxApp \
-#    FmService 
+#    FmService
 
 # Release utilities
 PRODUCT_PACKAGES += \
@@ -108,7 +108,7 @@ PRODUCT_PACKAGES += \
     omx_tests \
     evtest \
 #    camera_test \
-#    VideoEncTest 
+#    VideoEncTest
 
 PRODUCT_PACKAGES += \
     Camera \
@@ -120,7 +120,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     librs_jni \
     com.android.future.usb.accessory \
-    libjni_pinyinime 
+    libjni_pinyinime
 
 # CameraFix
 PRODUCT_COPY_FILES += \
@@ -134,7 +134,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += wifi_tether_v3_1-beta14
 PRODUCT_COPY_FILES += \
     device/moto/spyder/prebuilt/lib/libwtnativetask.so:system/lib/libwtnativetask.so \
-    
+
 
 # Rootfs files
 PRODUCT_COPY_FILES += \
